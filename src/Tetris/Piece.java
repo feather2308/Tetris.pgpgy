@@ -1,3 +1,4 @@
+package Tetris;
 import java.awt.Point;
 
 public abstract class Piece {
@@ -8,10 +9,12 @@ public abstract class Piece {
 	protected int c[];   // X축 좌표 배열
 	protected TetrisData data;  // 테트리스 내부 데이터
 	protected Point center; // 조각의 중심 좌표
-	public Piece(TetrisData data) {
+	protected int type;
+	public Piece(TetrisData data, int type) {
 		r = new int[4];
 		c = new int[4];
 		this.data = data;
+		this.type = type;
 		center = new Point(5,0);
 	}
 	public abstract int getType();
@@ -144,6 +147,40 @@ public abstract class Piece {
 			int temp = c[i];
 			c[i] = -r[i];
 			r[i] = temp;
+		}
+	}
+	
+	public String extractor() {
+		String str =
+		r[0] + "." + r[1] + "." + r[2] + "." + r[3] + "." +
+		c[0] + "." + c[1] + "." + c[2] + "." + c[3] + "." +
+		center.x + "." + center.y + "." + getType();
+		//0~3 r
+		//4~7 c
+		//8~9 center x, y
+		return str;
+	}
+	
+	public void combinator(String str) {
+		String[] fixedStr = str.split("\\.");
+		for(int i = 0; i < 11; i++) {
+			switch(i/4) {
+			case 0:
+				r[i] = Integer.parseInt(fixedStr[i]);
+				break;
+			case 1:
+				c[i%4] = Integer.parseInt(fixedStr[i]);
+				break;
+			case 2:
+				if(i%4 == 0) {
+					center.x = Integer.parseInt(fixedStr[i]);
+				} else if(i%4 == 1){
+					center.y = Integer.parseInt(fixedStr[i]);
+				} else {
+					type = Integer.parseInt(fixedStr[i]);
+				}
+				break;
+			}		
 		}
 	}
 }

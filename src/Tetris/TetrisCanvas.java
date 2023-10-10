@@ -1,3 +1,4 @@
+package Tetris;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -18,7 +19,7 @@ public class TetrisCanvas extends JPanel implements Runnable, KeyListener, Compo
 	protected Thread worker;
 	protected TetrisData data;
 	protected boolean stop, makeNew;
-	protected Piece   current;
+	protected Piece   current, newBlock;
 	
 	//그래픽스 함수를 사용하기 위한 클래스
 	private Graphics bufferGraphics = null;
@@ -56,6 +57,10 @@ public class TetrisCanvas extends JPanel implements Runnable, KeyListener, Compo
 		data.clear();
 		worker = new Thread(this);
 		worker.start();
+		
+		//임시용
+		current = new Tee(data);
+		
 		makeNew = true;
 		stop = false;
 		requestFocus();
@@ -95,6 +100,8 @@ public class TetrisCanvas extends JPanel implements Runnable, KeyListener, Compo
 						Constant.w, Constant.w, true);
 			}
 		}
+		bufferGraphics.setColor(Color.black);
+		bufferGraphics.drawString("점수: " + data.score, 10, 525);
 		
 		//가상버퍼(이미지)를 원본 버퍼에 복사
 		g.drawImage(offscreen,0,0,this);
@@ -109,38 +116,43 @@ public class TetrisCanvas extends JPanel implements Runnable, KeyListener, Compo
 		return new Dimension(tw, th);
 	}
 	
-	private Piece createBlock() {
+	private void createBlock() {
 		int random = (int)(Math.random() * Integer.MAX_VALUE) % 7;
 		switch(random){
 		case 0:
-			current = new Bar(data);
+			newBlock = new Bar(data);
 			break;
 		case 1:
-			current = new Tee(data);
+			newBlock = new Tee(data);
 			break;
 		case 2:
-			current = new El(data);
+			newBlock = new El(data);
 			break;
 		case 3:
-			// 추가로 작성할 내용
+			newBlock = new Er(data);
+			break;
 		case 4:
-			// 추가로 작성할 내용
+			newBlock = new Square(data);
+			break;
 		case 5:
-			// 추가로 작성할 내용
+			newBlock = new Kl(data);
+			break;
 		case 6:
-			// 추가로 작성할 내용
+			newBlock = new Kr(data);
+			break;
 		default:
 			if(random % 2 == 0)
-				current = new Tee(data);
-			else current = new El(data);
+				newBlock = new Tee(data);
+			else newBlock = new El(data);
 		}
-		return current;
 	}
 	public void run(){
 		while(!stop) {
 			try {
 				if(makeNew){ // 새로운 테트리스 조각 만들기
-					Piece newBlock = createBlock();
+					if(newBlock != null) current = newBlock;
+					newBlock = null;
+					createBlock();
 					preview.setCurrentBlock(newBlock);
 					makeNew = false;
 				} else { // 현재 만들어진 테트리스 조각 아래로 이동
@@ -148,8 +160,8 @@ public class TetrisCanvas extends JPanel implements Runnable, KeyListener, Compo
 						makeNew = true;
 						if(current.copy()){
 							stop();
-							int score = data.getLine() * 175 * Constant.level;
-							JOptionPane.showMessageDialog(this,"게임끝\n점수 : " + score);
+//							int score = data.getLine() * 175 * Constant.level;
+							JOptionPane.showMessageDialog(this,"게임끝\n점수 : " + data.score);
 						}
 						current = null;
 					}
@@ -187,8 +199,8 @@ public class TetrisCanvas extends JPanel implements Runnable, KeyListener, Compo
 				makeNew = true;
 				if(current.copy()){
 					stop();
-					int score = data.getLine() * 175 * Constant.level;
-					JOptionPane.showMessageDialog(this,"게임끝\n점수 : " + score);
+//					int score = data.getLine() * 175 * Constant.level;
+					JOptionPane.showMessageDialog(this,"게임끝\n점수 : " + data.score);
 				}
 			}
 			data.removeLines();
@@ -198,6 +210,10 @@ public class TetrisCanvas extends JPanel implements Runnable, KeyListener, Compo
 	
 	public TetrisData getData() {
 		return data;
+	}
+	
+	public Piece getNewBlock() {
+		return newBlock;
 	}
 	
 	@Override

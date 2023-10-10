@@ -1,3 +1,4 @@
+package Tetris;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,9 +15,11 @@ public class MyTetris extends JFrame{
 	 */
 	private static final long serialVersionUID = 1L;
 	private TetrisClient client = null;
+	private TetrisNetworkPreview netPreview = null;
+	
 	public MyTetris() {
 		setTitle("테트리스");
-		setSize(320*4, 600);
+		setSize(274*4, 600);
 		
 		GridLayout layout = new GridLayout(1,4);
 		setLayout(layout);
@@ -24,16 +27,16 @@ public class MyTetris extends JFrame{
 		TetrisNetworkCanvas netCanvas = new TetrisNetworkCanvas();
 		createMenu(tetrisCanvas, netCanvas);
 		TetrisPreview preview = new TetrisPreview(tetrisCanvas.getData());
-		TetrisPreview netPreview = new TetrisPreview(netCanvas.getData());
+		netPreview = new TetrisNetworkPreview(netCanvas.getData());
 		tetrisCanvas.setTetrisPreview(preview);
-		netCanvas.setTetrisPreview(netPreview);
+//		netCanvas.setTetrisPreview(netPreview);
 		add(tetrisCanvas);
 		add(preview);
 		add(netCanvas);
 		add(netPreview);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		pack();
+//		pack();
 		setVisible(true);
 	}
 	
@@ -95,7 +98,7 @@ public class MyTetris extends JFrame{
 				dialog.setVisible(true);
 				if(dialog.userChoice == ClientDialog.Choice.OK)
 				{
-					client = new TetrisClient(tetrisCanvas, netCanvas, dialog.getHost(), dialog.getPortNumber());
+					client = new TetrisClient(tetrisCanvas, netCanvas, netPreview, dialog.getHost(), dialog.getPortNumber());
 					client.start();
 					clientItem.setEnabled(false);
 				}

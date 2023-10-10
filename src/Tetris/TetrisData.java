@@ -1,9 +1,12 @@
+package Tetris;
 
 public class TetrisData {
 	public static final int ROW = 20;
 	public static final int COL = 10;
 	private int data[][];  // ROW x COL 의 배열
 	private int line;      // 지운 줄 수
+	
+	public int score = 0;
 	
 	public TetrisData() {
 		data = new int[ROW][COL];
@@ -46,6 +49,7 @@ public class TetrisData {
 						data[0][y] = 0;
 					}
 				}
+				score += 175;
 			}
 		}
 	}
