@@ -58,8 +58,34 @@ public class TetrisCanvas extends JPanel implements Runnable, KeyListener, Compo
 		worker = new Thread(this);
 		worker.start();
 		
-		//임시용
-		current = new Tee(data);
+		int random = (int)(Math.random() * Integer.MAX_VALUE) % 7;
+		switch(random){
+		case 0:
+			current = new Bar(data);
+			break;
+		case 1:
+			current = new Tee(data);
+			break;
+		case 2:
+			current = new El(data);
+			break;
+		case 3:
+			current = new Er(data);
+			break;
+		case 4:
+			current = new Square(data);
+			break;
+		case 5:
+			current = new Kl(data);
+			break;
+		case 6:
+			current = new Kr(data);
+			break;
+		default:
+			if(random % 2 == 0)
+				current = new Tee(data);
+			else current = new El(data);
+		}
 		
 		makeNew = true;
 		stop = false;
@@ -164,8 +190,9 @@ public class TetrisCanvas extends JPanel implements Runnable, KeyListener, Compo
 							JOptionPane.showMessageDialog(this,"게임끝\n점수 : " + data.score);
 						}
 						current = null;
+						//가만히 놔두었을 때
+						data.removeLines();
 					}
-					data.removeLines();
 				}
 				repaint();
 				Thread.sleep(Constant.interval/Constant.level);
@@ -202,9 +229,13 @@ public class TetrisCanvas extends JPanel implements Runnable, KeyListener, Compo
 //					int score = data.getLine() * 175 * Constant.level;
 					JOptionPane.showMessageDialog(this,"게임끝\n점수 : " + data.score);
 				}
+				current = null;
+				//내가 아랫방향키를 눌렀을 때
+				data.removeLines();
+				worker.interrupt();
 			}
-			data.removeLines();
 			repaint();
+			break;
 		}
 	}
 	

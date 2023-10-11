@@ -35,7 +35,8 @@ public class TetrisClient extends Thread {
     	String data = tetrisCanvas.getData().saveNetworkData();
     	int newBlock = tetrisCanvas.getNewBlock().getType();
     	String current = tetrisCanvas.current.extractor();
-		o.println(key+data+";"+newBlock+";"+current);
+    	int score = tetrisCanvas.getData().score;
+		o.println(key+data+";"+newBlock+";"+current+";"+score);
     }
     
 	public void run() {
@@ -86,6 +87,9 @@ public class TetrisClient extends Thread {
 						Piece tmpP = new Bar(new TetrisData());
 						tmpP.combinator(parsedData[3]); //currentPiece
 						netCanvas.setCurrent(tmpP);
+						
+						//Score 받음. parsedData[4]
+						netCanvas.getData().score = Integer.parseInt(parsedData[4]);
 					}
 				}
 			}

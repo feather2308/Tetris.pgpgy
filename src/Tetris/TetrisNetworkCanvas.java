@@ -76,14 +76,18 @@ public class TetrisNetworkCanvas extends JPanel implements Runnable, ComponentLi
 			}
 		}
 		// 현재 내려오고 있는 테트리스 조각 그리
-				if(current != null){
-					for(int i = 0; i < 4; i++) {
-						bufferGraphics.setColor(Constant.getColor(current.type));
-						bufferGraphics.fill3DRect(Constant.margin/2 + Constant.w * (current.getX()+current.c[i]), 
-								Constant.margin/2 + Constant.w * (current.getY()+current.r[i]), 
-								Constant.w, Constant.w, true);
-					}
-				}
+		if(current != null){
+			for(int i = 0; i < 4; i++) {
+				bufferGraphics.setColor(Constant.getColor(current.type));
+				bufferGraphics.fill3DRect(Constant.margin/2 + Constant.w * (current.getX()+current.c[i]), 
+						Constant.margin/2 + Constant.w * (current.getY()+current.r[i]), 
+						Constant.w, Constant.w, true);
+			}
+		}
+		
+		bufferGraphics.setColor(Color.black);
+		bufferGraphics.drawString("점수: " + data.score, 10, 525);
+				
 		//가상버퍼(이미지)를 원본 버퍼에 복사
 		g.drawImage(offscreen,0,0,this);
 	}

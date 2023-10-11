@@ -49,6 +49,7 @@ public class TetrisData {
 						data[0][y] = 0;
 					}
 				}
+				i++;
 				score += 175;
 			}
 		}
