@@ -9,16 +9,18 @@ public abstract class Piece {
 	protected int c[];   // X축 좌표 배열
 	protected TetrisData data;  // 테트리스 내부 데이터
 	protected Point center; // 조각의 중심 좌표
-	protected int type;
-	public Piece(TetrisData data, int type) {
+	protected int type, roteType;
+	
+	public Piece(TetrisData data, int type, int roteType) {
 		r = new int[4];
 		c = new int[4];
 		this.data = data;
 		this.type = type;
+		this.roteType = roteType;
 		center = new Point(5,0);
 	}
-	public abstract int getType();
-	public abstract int roteType();
+	public int getType() { return type; }
+	public int roteType() { return roteType; }
  
 	public int getX() { return center.x; }
 	public int getY() { return center.y; }
@@ -148,6 +150,21 @@ public abstract class Piece {
 			c[i] = -r[i];
 			r[i] = temp;
 		}
+	}
+	
+	public void ghost(Piece ghost) {
+		ghost.r = this.r;
+		ghost.c = this.c;
+		ghost.center.x = this.center.x;
+		ghost.center.y = this.center.y;
+		while(!ghost.moveDown()) {}
+	}
+	
+	public void save(Piece save) {
+		save.r = this.r;
+		save.c = this.c;
+		save.type = this.getType();
+		save.roteType = this.roteType();
 	}
 	
 	public String extractor() {

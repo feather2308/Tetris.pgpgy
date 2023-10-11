@@ -18,8 +18,8 @@ public class TetrisCanvas extends JPanel implements Runnable, KeyListener, Compo
 	private static final long serialVersionUID = 1L;
 	protected Thread worker;
 	protected TetrisData data;
-	protected boolean stop, makeNew;
-	protected Piece   current, newBlock;
+	protected boolean stop, makeNew, saveAble = true;
+	protected Piece   current, newBlock, ghost, save, tmp;
 	
 	//그래픽스 함수를 사용하기 위한 클래스
 	private Graphics bufferGraphics = null;
@@ -86,8 +86,12 @@ public class TetrisCanvas extends JPanel implements Runnable, KeyListener, Compo
 				current = new Tee(data);
 			else current = new El(data);
 		}
+		ghost = new Bar(data);
+		createBlock();
+		preview.setCurrentBlock(newBlock);
+		current.ghost(ghost);
 		
-		makeNew = true;
+		makeNew = false;
 		stop = false;
 		requestFocus();
 		repaint();
@@ -117,6 +121,17 @@ public class TetrisCanvas extends JPanel implements Runnable, KeyListener, Compo
 				}
 			}
 		}
+		
+		//도형 고스트
+		if(ghost != null){
+			for(int i = 0; i < 4; i++) {
+				bufferGraphics.setColor(Color.LIGHT_GRAY);
+				bufferGraphics.fill3DRect(Constant.margin/2 + Constant.w * (ghost.getX()+ghost.c[i]), 
+						Constant.margin/2 + Constant.w * (ghost.getY()+ghost.r[i]), 
+						Constant.w, Constant.w, true);
+			}
+		}
+		
 		// 현재 내려오고 있는 테트리스 조각 그리
 		if(current != null){
 			for(int i = 0; i < 4; i++) {
@@ -126,6 +141,7 @@ public class TetrisCanvas extends JPanel implements Runnable, KeyListener, Compo
 						Constant.w, Constant.w, true);
 			}
 		}
+		
 		bufferGraphics.setColor(Color.black);
 		bufferGraphics.drawString("점수: " + data.score, 10, 525);
 		
@@ -176,7 +192,11 @@ public class TetrisCanvas extends JPanel implements Runnable, KeyListener, Compo
 		while(!stop) {
 			try {
 				if(makeNew){ // 새로운 테트리스 조각 만들기
-					if(newBlock != null) current = newBlock;
+					if(newBlock != null) {
+						current = newBlock;
+						ghost = new Bar(data);
+						current.ghost(ghost);
+					}
 					newBlock = null;
 					createBlock();
 					preview.setCurrentBlock(newBlock);
@@ -190,8 +210,10 @@ public class TetrisCanvas extends JPanel implements Runnable, KeyListener, Compo
 							JOptionPane.showMessageDialog(this,"게임끝\n점수 : " + data.score);
 						}
 						current = null;
+						ghost = null;
 						//가만히 놔두었을 때
 						data.removeLines();
+						saveAble = true;
 					}
 				}
 				repaint();
@@ -210,14 +232,17 @@ public class TetrisCanvas extends JPanel implements Runnable, KeyListener, Compo
 		switch(e.getKeyCode()) {
 		case KeyEvent.VK_LEFT: // 왼쪽 화살표
 			current.moveLeft();
+			current.ghost(ghost);
 			repaint();
 			break;
 		case KeyEvent.VK_RIGHT:  // 오른쪽 화살표
 			current.moveRight();
+			current.ghost(ghost);
 			repaint();
 			break;
 		case KeyEvent.VK_UP:  // 윗쪽 화살표
 			current.rotate();
+			current.ghost(ghost);
 			repaint();
 			break;
 		case KeyEvent.VK_DOWN:  // 아랫쪽 화살표
@@ -226,13 +251,56 @@ public class TetrisCanvas extends JPanel implements Runnable, KeyListener, Compo
 				makeNew = true;
 				if(current.copy()){
 					stop();
-//					int score = data.getLine() * 175 * Constant.level;
+					//int score = data.getLine() * 175 * Constant.level;
 					JOptionPane.showMessageDialog(this,"게임끝\n점수 : " + data.score);
 				}
 				current = null;
+				ghost = null;
 				//내가 아랫방향키를 눌렀을 때
 				data.removeLines();
+				saveAble = true;
 				worker.interrupt();
+			}
+			repaint();
+			break;
+		case KeyEvent.VK_SPACE: //스페이스바
+			while(!current.moveDown()) { }
+			makeNew = true;
+			if(current.copy()){
+				stop();
+				//int score = data.getLine() * 175 * Constant.level;
+				JOptionPane.showMessageDialog(this,"게임끝\n점수 : " + data.score);
+			}
+			current = null;
+			ghost = null;
+			//내가 스페이스바를 눌렀을 때
+			data.removeLines();
+			saveAble = true;
+			worker.interrupt();
+			repaint();
+			break;
+		case KeyEvent.VK_C: //C키
+			if(saveAble) {
+				if(save == null) save = new Bar(data);
+				else save.save(tmp = new Bar(data));
+				
+				current.save(save);
+				
+				if(tmp == null) {
+					current = null;
+					ghost = null;
+					makeNew = true;
+					worker.interrupt();
+				} else {
+					tmp.save(current);
+					current.center.x = 5;
+					current.center.y = 0;
+					current.roteType = tmp.roteType();
+					current.ghost(ghost);
+				}
+				
+				preview.setSaveBlock(save);
+				saveAble = false;
 			}
 			repaint();
 			break;
